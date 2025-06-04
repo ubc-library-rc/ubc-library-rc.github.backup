@@ -44,4 +44,77 @@
 
   <script>
     const TOPIC_LABELS = {
-      data: 'Data analysis and vis
+      data: 'Data analysis and visualization',
+      geospatial: 'Geographic information systems (GIS) and mapping',
+      'digital-scholarship': 'Digital scholarship'
+    };
+
+    async function loadRepos() {
+      const response = await fetch('https://api.github.com/orgs/ubc-library-rc/repos?per_page=100');
+      const repos = await response.json();
+
+      const enrichedRepos = await Promise.all(repos.map(async repo => {
+        const topicRes = await fetch(repo.url + '/topics', {
+          headers: { Accept: 'application/vnd.github.mercy-preview+json' }
+        });
+        const topicData = await topicRes.json();
+        return {
+          name: repo.name,
+          description: repo.description,
+          url: repo.html_url,
+          archived: repo.archived,
+          topics: topicData.names || []
+        };
+      }));
+
+      // Group by topic
+      const grouped = {};
+      for (const topic in TOPIC_LABELS) {
+        grouped[topic] = enrichedRepos
+          .filter(repo =>
+            repo.description &&
+            repo.topics.includes(topic)
+          )
+          .sort((a, b) => a.description.localeCompare(b.description));
+      }
+
+      // Render
+      const container = document.getElementById('repo-sections');
+      for (const topic in TOPIC_LABELS) {
+        const repos = grouped[topic];
+        if (!repos || repos.length === 0) continue;
+
+        const section = document.createElement('section');
+
+        const heading = document.createElement('h2');
+        heading.textContent = TOPIC_LABELS[topic];
+        section.appendChild(heading);
+
+        const list = document.createElement('ul');
+        for (const repo of repos) {
+          const item = document.createElement('li');
+          const link = document.createElement('a');
+          link.href = repo.url;
+          link.target = '_blank';
+          link.rel = 'noopener noreferrer';
+
+          let linkText = repo.description;
+          if (repo.archived) {
+            linkText += ' (archived)';
+            link.classList.add('archived');
+          }
+
+          link.textContent = linkText;
+          item.appendChild(link);
+          list.appendChild(item);
+        }
+
+        section.appendChild(list);
+        container.appendChild(section);
+      }
+    }
+
+    loadRepos();
+  </script>
+</body>
+</html>
