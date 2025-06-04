@@ -1,0 +1,7 @@
+{
+  "name": "ubc-rc-html-builder",
+  "type": "module",
+  "scripts": {
+    "generate": "node scripts/generate.js"
+  }
+}
