@@ -94,8 +94,8 @@ async function main() {
 </body>
 </html>`;
 
-  fs.writeFileSync('all.html', html);
-  console.log('✅ all.html generated');
+  fs.writeFileSync('all_test.html', html);
+  console.log('✅ all_test.html generated');
 }
 
 main().catch(err => {
