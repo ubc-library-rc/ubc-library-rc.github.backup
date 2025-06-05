@@ -23,15 +23,15 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Generate all.html
+      - name: Generate all_test.html
         run: npm run generate
 
       - name: Commit and push if changed
         run: |
           git config user.name "GitHub Actions"
           git config user.email "actions@github.com"
-          git add all.html
-          git diff --cached --quiet || git commit -m "Update all.html [auto]"
+          git add all_test.html
+          git diff --cached --quiet || git commit -m "Update all_test.html [auto]"
           git push
         env:
           # Uses default GITHUB_TOKEN
