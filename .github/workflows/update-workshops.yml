@@ -35,5 +35,5 @@ jobs:
           git remote set-url origin https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}
           git add all_test.html
           git diff --cached --quiet || git commit -m "Update all_test.html [auto]"
-          git push origin HEAD:main
+          git push origin HEAD:master
 
