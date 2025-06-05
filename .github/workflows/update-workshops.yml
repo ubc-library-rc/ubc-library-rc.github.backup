@@ -27,12 +27,13 @@ jobs:
         run: npm run generate
 
       - name: Commit and push if changed
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           git config user.name "GitHub Actions"
           git config user.email "actions@github.com"
+          git remote set-url origin https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}
           git add all_test.html
           git diff --cached --quiet || git commit -m "Update all_test.html [auto]"
-          git push
-        env:
-          # Uses default GITHUB_TOKEN
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          git push origin HEAD:main
+
