@@ -76,19 +76,11 @@ async function main() {
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>UBC Library Research Commons workshops</title>
-  <style>
-    body { font-family: sans-serif; padding: 2rem; max-width: 800px; margin: auto; }
-    h1 { font-size: 1.8rem; color: #003366; }
-    h2 { margin-top: 2rem; font-size: 1.4rem; color: #0055aa; }
-    ul { list-style: none; padding-left: 0; }
-    li { margin-bottom: 1rem; }
-    a { color: #0055aa; text-decoration: none; }
-    a:hover { text-decoration: underline; }
-    .archived { font-style: italic; }
-  </style>
+  <title>UBC Library Research Commons - Open Educational Materials</title>
+  <link rel="stylesheet" href="assets/base_expanded.css">
 </head>
 <body>
+
   <h1>UBC Library Research Commons workshops</h1>
   ${sections}
 </body>
