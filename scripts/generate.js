@@ -1,5 +1,5 @@
-const fs = require('fs');
-const https = require('https');
+import fs from 'node:fs';
+import https from 'node:https';
 
 const TOPIC_LABELS = {
   data: 'Data analysis and visualization',
