@@ -24,6 +24,8 @@ jobs:
         run: npm install
 
       - name: Generate all_test.html
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: npm run generate
 
       - name: Commit and push if changed
