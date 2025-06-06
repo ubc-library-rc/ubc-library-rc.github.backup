@@ -31,7 +31,7 @@ function fetchJSON(url, headers = {}) {
 async function main() {
   const headers = {
     'User-Agent': 'gh-actions',
-    'Accept': 'application/vnd.github.mercy-preview+json'
+    'Accept': 'application/vnd.github+json'
   };
 
   const repos = await fetchJSON('https://api.github.com/orgs/ubc-library-rc/repos?per_page=100', headers);
@@ -98,10 +98,10 @@ async function main() {
 	<div id="header-link">
 		<a href="https://github.com/ubc-library-rc/">github.com/ubc-library-rc</a>
 	</div>
+	<div style="clear:both"></div>
   </div>
-  <p class="large">Past and present workshops offered by the Research Commons</p>
+  <h1>Past and present workshops offered by the Research Commons</h1>
   <p>For currently scheduled workshops visit <a href="https://researchcommons.library.ubc.ca/events/">https://researchcommons.library.ubc.ca/events/</a></p>
-  <h1>UBC Library Research Commons workshops</h1>
   ${sections}
   ${nonRepoWorkshops}
 </body>
