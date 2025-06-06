@@ -28,6 +28,17 @@ function fetchJSON(url, headers = {}) {
   });
 }
 
+console.log('🛠️ Checking GITHUB_TOKEN...');
+
+if (!process.env.GITHUB_TOKEN) {
+  console.error('❌ GITHUB_TOKEN is missing!');
+  process.exit(1);
+} else {
+  console.log('✅ GITHUB_TOKEN is present.');
+  console.log('🔑 Token starts with:', process.env.GITHUB_TOKEN.slice(0, 5));
+}
+
+
 async function main() {
   const headers = {
     'User-Agent': 'gh-actions',
