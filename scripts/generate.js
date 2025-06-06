@@ -32,6 +32,7 @@ async function main() {
   const headers = {
     'User-Agent': 'gh-actions',
     'Accept': 'application/vnd.github+json'
+	'Authorization': `token ${process.env.GITHUB_TOKEN}`
   };
 
   const repos = await fetchJSON('https://api.github.com/orgs/ubc-library-rc/repos?per_page=100', headers);
@@ -88,7 +89,7 @@ async function main() {
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div id="header">
+  <section>
   	<div id="header-img">
 		<img src="images/rc-logo-square.png" alt="UBC Research Commons logo"/>
 	</div>
@@ -99,7 +100,7 @@ async function main() {
 		<a href="https://github.com/ubc-library-rc/">github.com/ubc-library-rc</a>
 	</div>
 	<div style="clear:both"></div>
-  </div>
+  </section>
   <h1>Past and present workshops offered by the Research Commons</h1>
   <p>For currently scheduled workshops visit <a href="https://researchcommons.library.ubc.ca/events/">https://researchcommons.library.ubc.ca/events/</a></p>
   ${sections}

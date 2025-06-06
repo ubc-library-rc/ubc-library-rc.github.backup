@@ -8,8 +8,10 @@ body {
 }
 
 h1 { 
-	font-size: 1.9rem; 
+	font-size: 1.6rem; 
 	font-weight: 300; 
+	margin-bottom: 0.3rem;
+	margin-top: 3rem;
 }
 
 h2 { 
