@@ -3,8 +3,9 @@ import https from 'node:https';
 
 const TOPIC_LABELS = {
   data: 'Data analysis and visualization',
+  'digital-scholarship': 'Digital scholarship',
   geospatial: 'Geographic information systems (GIS) and mapping',
-  'digital-scholarship': 'Digital scholarship'
+  'research-data-management': 'Research data management'
 };
 
 function fetchJSON(url, headers = {}) {
@@ -59,6 +60,13 @@ async function main() {
       .sort((a, b) => a.description.localeCompare(b.description));
   }
 
+	let nonRepoWorkshops = '';
+	try {
+  nonRepoWorkshops = fs.readFileSync('non_repo_workshops.html', 'utf8');
+} catch (err) {
+  console.warn('⚠️ Could not load non_repo_workshops.html:', err.message);
+}
+
   const sections = Object.entries(grouped).map(([topic, repos]) => {
     if (!repos.length) return '';
     const items = repos.map(repo => {
@@ -77,12 +85,25 @@ async function main() {
 <head>
   <meta charset="UTF-8">
   <title>UBC Library Research Commons - Open Educational Materials</title>
-  <link rel="stylesheet" href="assets/base_expanded.css">
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
+  <div id="header">
+  	<div id="header-img">
+		<img src="images/rc-logo-square.png" alt="UBC Research Commons logo"/>
+	</div>
+	<div id="header-text">
+		UBC Library Research Commons
+	</div>
+	<div id="header-link">
+		<a href="https://github.com/ubc-library-rc/">github.com/ubc-library-rc</a>
+	</div>
+  </div>
+  <p class="large">Past and present workshops offered by the Research Commons</p>
+  <p>For currently scheduled workshops visit <a href="https://researchcommons.library.ubc.ca/events/">https://researchcommons.library.ubc.ca/events/</a></p>
   <h1>UBC Library Research Commons workshops</h1>
   ${sections}
+  ${nonRepoWorkshops}
 </body>
 </html>`;
 
