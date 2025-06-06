@@ -28,6 +28,25 @@ function fetchJSON(url, headers = {}) {
   });
 }
 
+async function fetchAllRepos(headers) {
+  let allRepos = [];
+  let page = 1;
+  let fetched;
+
+  console.log('🔄 Fetching all repositories from GitHub (with pagination)...');
+
+  do {
+    const url = `https://api.github.com/orgs/ubc-library-rc/repos?per_page=100&page=${page}`;
+    console.log(`📄 Fetching page ${page}...`);
+    fetched = await fetchJSON(url, headers);
+    allRepos = allRepos.concat(fetched);
+    page++;
+  } while (fetched.length === 100);
+
+  console.log(`✅ Fetched ${allRepos.length} repositories total.`);
+  return allRepos;
+}
+
 async function main() {
   const headers = {
     'User-Agent': 'gh-actions',
@@ -35,7 +54,7 @@ async function main() {
 	'Authorization': `token ${process.env.GITHUB_TOKEN}`
   };
 
-  const repos = await fetchJSON('https://api.github.com/orgs/ubc-library-rc/repos?per_page=100', headers);
+  const repos = await fetchAllRepos(headers);
 
   const enriched = [];
   for (const repo of repos) {
