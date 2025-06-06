@@ -42,13 +42,15 @@ async function main() {
     if (!repo.description) continue;
     try {
       const topics = await fetchJSON(`https://api.github.com/repos/ubc-library-rc/${repo.name}/topics`, headers);
-      enriched.push({
-        name: repo.name,
-        description: repo.description,
-        url: `https://ubc-library-rc.github.io/${repo.name}/`,
-        archived: repo.archived,
-        topics: topics.names || []
-      });
+		if (topics.names && topics.names.includes('workshop')) {
+          enriched.push({
+            name: repo.name,
+            description: repo.description,
+            url: `https://ubc-library-rc.github.io/${repo.name}/`,
+            archived: repo.archived,
+            topics: topics.names || []
+          });
+	   } 	
     } catch (e) {
       console.warn(`Skipping ${repo.name}: ${e.message}`);
     }
