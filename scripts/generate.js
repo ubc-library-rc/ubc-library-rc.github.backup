@@ -90,6 +90,7 @@ async function main() {
 </head>
 <body>
   <section>
+  	<div class="header-flex">
   	<div id="header-img">
 		<img src="images/rc-logo-square.png" alt="UBC Research Commons logo"/>
 	</div>
@@ -99,7 +100,7 @@ async function main() {
 	<div id="header-link">
 		<a href="https://github.com/ubc-library-rc/">github.com/ubc-library-rc</a>
 	</div>
-	<div style="clear:both"></div>
+	</div>
   </section>
   <h1>Past and present workshops offered by the Research Commons</h1>
   <p>For currently scheduled workshops visit <a href="https://researchcommons.library.ubc.ca/events/">https://researchcommons.library.ubc.ca/events/</a></p>
