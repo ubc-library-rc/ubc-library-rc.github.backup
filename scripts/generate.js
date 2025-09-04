@@ -221,10 +221,23 @@ async function main() {
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Featured Workshops</title>
+  <title>UBC Library Research Commons - Featured workshops</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
+  <section>
+    <div class="header-flex">
+      <div id="header-img">
+        <img src="images/rc-logo-square.png" alt="UBC Research Commons logo"/>
+      </div>
+      <div id="header-text">
+        UBC Library Research Commons
+      </div>
+      <div id="header-link">
+        <a href="https://github.com/${ORG}/">github.com/${ORG}</a>
+      </div>
+    </div>
+  </section>
   <h1>Featured Workshops</h1>
   ${sectionsFeatured}
 </body>
