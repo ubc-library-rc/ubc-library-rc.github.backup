@@ -204,16 +204,18 @@ async function main() {
           const blurbText = repo.blurb
             ? `<p class="blurb">${repo.blurb}</p>`
             : "";
-          return `<li>
-  <a ${cls} href="${repo.url}" target="_blank" rel="noopener noreferrer">${text}</a>
-  ${blurbText}
-</li>`;
+          return `<div class="workshop-card">
+        <a ${cls} href="${repo.url}" target="_blank" rel="noopener noreferrer">${text}</a>
+        ${blurbText}
+        </div>`;
         })
         .join("\n");
       return `<section>
-  <h2>${TOPIC_LABELS[topic]}</h2>
-  <ul>${items}</ul>
-</section>`;
+        <h2>${TOPIC_LABELS[topic]}</h2>
+        <div class="workshop-grid">
+          ${items}
+        </div>
+      </section>`;
     })
     .join("\n\n");
 
