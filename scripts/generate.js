@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
-const fs = require("fs");
-const fetch = require("node-fetch");
+import fs from "node:fs";
+import fetch from "node-fetch";
 
 const ORG = "your-org-name"; // TODO: replace with your GitHub org
 const TOKEN = process.env.GITHUB_TOKEN;
@@ -30,7 +30,10 @@ async function fetchRepoTopics(repo, headers) {
   const res = await fetch(
     `https://api.github.com/repos/${ORG}/${repo}/topics`,
     {
-      headers: { ...headers, Accept: "application/vnd.github.mercy-preview+json" },
+      headers: {
+        ...headers,
+        Accept: "application/vnd.github.mercy-preview+json",
+      },
     }
   );
   if (!res.ok) return { names: [] };
@@ -76,7 +79,6 @@ async function main() {
 
   const repos = await fetchAllRepos(headers);
 
-  // Enrich repos with topics and readme info
   const enriched = [];
   const featured = [];
 
@@ -101,11 +103,9 @@ async function main() {
     }
   }
 
-  // Sort both lists by title
   enriched.sort((a, b) => a.title.localeCompare(b.title));
   featured.sort((a, b) => a.title.localeCompare(b.title));
 
-  // Grouping helper
   function groupByTopic(repos) {
     const groups = {};
     for (const repo of repos) {
@@ -193,11 +193,10 @@ async function main() {
   fs.writeFileSync("all_test.html", htmlAll);
   fs.writeFileSync("featured_workshops.html", htmlFeatured);
 
-  console.log("Pages generated: all_test.html, featured_workshops.html");
+  console.log("✅ Pages generated: all_test.html, featured_workshops.html");
 }
 
 main().catch((err) => {
   console.error(err);
   process.exit(1);
 });
-
