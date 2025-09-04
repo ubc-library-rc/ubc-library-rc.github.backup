@@ -73,3 +73,34 @@ section {border-bottom: 1px solid rgba(0,0,0,0.1)}
   text-align: right;
   min-width: 200px;
 }
+
+.workshop-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+  margin-top: 1rem;
+}
+
+.workshop-card {
+  background: #f9f9f9;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 1rem;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.workshop-card a {
+  font-weight: bold;
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+.workshop-card .blurb {
+  font-size: 0.9em;
+  color: #555;
+  margin: 0;
+}
+
+.blurb {
+	color: #959ba2;
+}
