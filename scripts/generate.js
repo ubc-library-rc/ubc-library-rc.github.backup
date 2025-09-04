@@ -2,49 +2,49 @@
 
 import fs from "node:fs";
 
-const ORG = "your-org-name"; // TODO: replace with your GitHub org
+const ORG = "ubc-library-rc"; // replace if needed
 const TOKEN = process.env.GITHUB_TOKEN;
 
+const TOPIC_LABELS = {
+  data: "Data analysis and visualization",
+  "digital-scholarship": "Digital scholarship",
+  geospatial: "Geographic information systems (GIS) and mapping",
+  "research-data-management": "Research data management",
+};
+
 // -----------------------------
-// Helper functions
+// Helpers
 // -----------------------------
 
 async function fetchAllRepos(headers) {
-  let repos = [];
+  let allRepos = [];
   let page = 1;
-  while (true) {
+  let fetched;
+  do {
     const res = await fetch(
       `https://api.github.com/orgs/${ORG}/repos?per_page=100&page=${page}`,
       { headers }
     );
-    if (!res.ok) throw new Error(`Failed to fetch repos: ${res.status}`);
-    const data = await res.json();
-    if (data.length === 0) break;
-    repos = repos.concat(data);
+    if (!res.ok) throw new Error(`HTTP ${res.status}: repos page ${page}`);
+    fetched = await res.json();
+    allRepos = allRepos.concat(fetched);
     page++;
-  }
-  return repos;
+  } while (fetched.length === 100);
+  return allRepos;
 }
 
 async function fetchRepoTopics(repo, headers) {
-  const res = await fetch(
-    `https://api.github.com/repos/${ORG}/${repo}/topics`,
-    {
-      headers: {
-        ...headers,
-        Accept: "application/vnd.github.mercy-preview+json",
-      },
-    }
-  );
+  const res = await fetch(`https://api.github.com/repos/${ORG}/${repo}/topics`, {
+    headers: { ...headers, Accept: "application/vnd.github+json" },
+  });
   if (!res.ok) return { names: [] };
   return res.json();
 }
 
 async function fetchRepoReadme(repo, headers) {
-  const res = await fetch(
-    `https://api.github.com/repos/${ORG}/${repo}/readme`,
-    { headers }
-  );
+  const res = await fetch(`https://api.github.com/repos/${ORG}/${repo}/readme`, {
+    headers,
+  });
   if (!res.ok) return "";
   const data = await res.json();
   if (!data.content) return "";
@@ -57,7 +57,6 @@ function extractTitleAndBlurb(readme) {
   if (!readme) return { title, blurb };
 
   const lines = readme.split(/\r?\n/);
-
   for (const line of lines) {
     if (!title && line.startsWith("#")) {
       title = line.replace(/^#+\s*/, "").trim();
@@ -77,6 +76,7 @@ function extractTitleAndBlurb(readme) {
 async function main() {
   const headers = {
     "User-Agent": "gh-actions",
+    Accept: "application/vnd.github+json",
     ...(TOKEN ? { Authorization: `token ${TOKEN}` } : {}),
   };
 
@@ -86,81 +86,118 @@ async function main() {
   const featured = [];
 
   for (const repo of repos) {
-    const topics = await fetchRepoTopics(repo.name, headers);
-    const readme = await fetchRepoReadme(repo.name, headers);
-    const { title, blurb } = extractTitleAndBlurb(readme);
+    if (!repo.description) continue;
 
-    const enrichedRepo = {
-      name: repo.name,
-      title: title || repo.description || repo.name,
-      blurb,
-      url: `https://${ORG}.github.io/${repo.name}/`,
-      archived: repo.archived,
-      topics: topics.names || [],
-    };
+    try {
+      const topics = await fetchRepoTopics(repo.name, headers);
+      const readme = await fetchRepoReadme(repo.name, headers);
+      const { title, blurb } = extractTitleAndBlurb(readme);
 
-    enriched.push(enrichedRepo);
+      const finalTitle = title || repo.description || repo.name;
 
-    if (enrichedRepo.topics.includes("featured")) {
-      featured.push(enrichedRepo);
-    }
-  }
+      const enrichedRepo = {
+        name: repo.name,
+        title: finalTitle,
+        blurb,
+        url: `https://${ORG}.github.io/${repo.name}/`,
+        archived: repo.archived,
+        topics: topics.names || [],
+      };
 
-  enriched.sort((a, b) => a.title.localeCompare(b.title));
-  featured.sort((a, b) => a.title.localeCompare(b.title));
-
-  function groupByTopic(repos) {
-    const groups = {};
-    for (const repo of repos) {
-      const groupNames = repo.topics.length > 0 ? repo.topics : ["Other"];
-      for (const t of groupNames) {
-        if (!groups[t]) groups[t] = [];
-        groups[t].push(repo);
+      if (topics.names && topics.names.includes("workshop")) {
+        enriched.push(enrichedRepo);
       }
+      if (topics.names && topics.names.includes("featured")) {
+        featured.push(enrichedRepo);
+      }
+    } catch (e) {
+      console.warn(`⚠️ Skipping ${repo.name}: ${e.message}`);
     }
-    return groups;
   }
 
-  const groupsAll = groupByTopic(enriched);
-  const groupsFeatured = groupByTopic(featured);
+  // -----------------------------
+  // Group by predefined topics
+  // -----------------------------
+  function groupRepos(repos) {
+    const grouped = {};
+    for (const topic of Object.keys(TOPIC_LABELS)) {
+      grouped[topic] = repos
+        .filter((r) => r.topics.includes(topic))
+        .sort((a, b) => a.title.localeCompare(b.title));
+    }
+    return grouped;
+  }
+
+  const groupedAll = groupRepos(enriched);
+  const groupedFeatured = groupRepos(featured);
+
+  // -----------------------------
+  // Non-repo workshops (same as before)
+  // -----------------------------
+  let nonRepoWorkshops = "";
+  try {
+    nonRepoWorkshops = fs.readFileSync("non_repo_workshops.html", "utf8");
+  } catch (err) {
+    console.warn("⚠️ Could not load non_repo_workshops.html:", err.message);
+  }
 
   // -----------------------------
   // Generate all_test.html
   // -----------------------------
-  const sectionsAll = Object.keys(groupsAll)
-    .sort()
-    .map((topic) => {
-      const items = groupsAll[topic]
+  const sectionsAll = Object.entries(groupedAll)
+    .map(([topic, repos]) => {
+      if (!repos.length) return "";
+      const items = repos
         .map((repo) => {
           const text = repo.title + (repo.archived ? " (archived)" : "");
           const cls = repo.archived ? 'class="archived"' : "";
           return `<li><a ${cls} href="${repo.url}" target="_blank" rel="noopener noreferrer">${text}</a></li>`;
         })
         .join("\n");
-      return `<h2>${topic}</h2>\n<ul>\n${items}\n</ul>`;
+      return `<section>
+  <h2>${TOPIC_LABELS[topic]}</h2>
+  <ul>${items}</ul>
+</section>`;
     })
     .join("\n\n");
 
   const htmlAll = `<!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <meta charset="utf-8">
-  <title>All Test Repositories</title>
+  <meta charset="UTF-8">
+  <title>UBC Library Research Commons - Open Educational Materials</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <h1>All Test Repositories</h1>
+  <section>
+    <div class="header-flex">
+      <div id="header-img">
+        <img src="images/rc-logo-square.png" alt="UBC Research Commons logo"/>
+      </div>
+      <div id="header-text">
+        UBC Library Research Commons
+      </div>
+      <div id="header-link">
+        <a href="https://github.com/${ORG}/">github.com/${ORG}</a>
+      </div>
+    </div>
+  </section>
+  <h1>Past and present workshops offered by the Research Commons</h1>
+  <p>For currently scheduled workshops visit <a href="https://researchcommons.library.ubc.ca/events/">https://researchcommons.library.ubc.ca/events/</a></p>
   ${sectionsAll}
+  ${nonRepoWorkshops}
 </body>
 </html>`;
+
+  fs.writeFileSync("all_test.html", htmlAll);
 
   // -----------------------------
   // Generate featured_workshops.html
   // -----------------------------
-  const sectionsFeatured = Object.keys(groupsFeatured)
-    .sort()
-    .map((topic) => {
-      const items = groupsFeatured[topic]
+  const sectionsFeatured = Object.entries(groupedFeatured)
+    .map(([topic, repos]) => {
+      if (!repos.length) return "";
+      const items = repos
         .map((repo) => {
           const text = repo.title + (repo.archived ? " (archived)" : "");
           const cls = repo.archived ? 'class="archived"' : "";
@@ -173,14 +210,17 @@ async function main() {
 </li>`;
         })
         .join("\n");
-      return `<h2>${topic}</h2>\n<ul>\n${items}\n</ul>`;
+      return `<section>
+  <h2>${TOPIC_LABELS[topic]}</h2>
+  <ul>${items}</ul>
+</section>`;
     })
     .join("\n\n");
 
   const htmlFeatured = `<!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <meta charset="utf-8">
+  <meta charset="UTF-8">
   <title>Featured Workshops</title>
   <link rel="stylesheet" href="style.css">
 </head>
@@ -190,10 +230,6 @@ async function main() {
 </body>
 </html>`;
 
-  // -----------------------------
-  // Write files
-  // -----------------------------
-  fs.writeFileSync("all_test.html", htmlAll);
   fs.writeFileSync("featured_workshops.html", htmlFeatured);
 
   console.log("✅ Pages generated: all_test.html, featured_workshops.html");
