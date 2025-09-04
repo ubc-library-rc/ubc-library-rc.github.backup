@@ -35,7 +35,7 @@ jobs:
           git config user.name "GitHub Actions"
           git config user.email "actions@github.com"
           git remote set-url origin https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}
-          git add all_test.html
-          git diff --cached --quiet || git commit -m "Update all_test.html [auto]"
+          git add all_test.html featured_workshops.html
+          git diff --cached --quiet || git commit -m "Update workshop lists [auto]"
           git push origin HEAD:master
 
