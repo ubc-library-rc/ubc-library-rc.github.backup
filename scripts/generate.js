@@ -1,7 +1,6 @@
 #!/usr/bin/env node
 
 import fs from "node:fs";
-import fetch from "node-fetch";
 
 const ORG = "your-org-name"; // TODO: replace with your GitHub org
 const TOKEN = process.env.GITHUB_TOKEN;
@@ -18,6 +17,7 @@ async function fetchAllRepos(headers) {
       `https://api.github.com/orgs/${ORG}/repos?per_page=100&page=${page}`,
       { headers }
     );
+    if (!res.ok) throw new Error(`Failed to fetch repos: ${res.status}`);
     const data = await res.json();
     if (data.length === 0) break;
     repos = repos.concat(data);
@@ -75,7 +75,10 @@ function extractTitleAndBlurb(readme) {
 // -----------------------------
 
 async function main() {
-  const headers = TOKEN ? { Authorization: `token ${TOKEN}` } : {};
+  const headers = {
+    "User-Agent": "gh-actions",
+    ...(TOKEN ? { Authorization: `token ${TOKEN}` } : {}),
+  };
 
   const repos = await fetchAllRepos(headers);
 
