@@ -132,7 +132,7 @@ async function main() {
   const groupedFeatured = groupRepos(featured);
 
   // -----------------------------
-  // Non-repo workshops (same as before)
+  // Non-repo workshops
   // -----------------------------
   let nonRepoWorkshops = "";
   try {
@@ -141,6 +141,16 @@ async function main() {
     console.warn("⚠️ Could not load non_repo_workshops.html:", err.message);
   }
 
+  // -----------------------------
+  // Non-repo featured workshops
+  // -----------------------------
+  let nonRepoFeaturedWorkshops = "";
+  try {
+    nonRepoFeaturedWorkshops = fs.readFileSync("non_repo_featured_workshops.html", "utf8");
+  } catch (err) {
+    console.warn("⚠️ Could not load non_repo_featured_workshops.html:", err.message);
+  }
+  
   // -----------------------------
   // Generate all_test.html
   // -----------------------------
@@ -242,6 +252,7 @@ async function main() {
   </section>
   <h1>Featured Workshops</h1>
   ${sectionsFeatured}
+  ${nonRepoFeaturedWorkshops}
 </body>
 </html>`;
 
