@@ -9,7 +9,7 @@ const TOPIC_LABELS = {
   data: "Data analysis and visualization",
   "digital-scholarship": "Digital scholarship",
   geospatial: "Geographic information systems (GIS) and mapping",
-  "research-data-management": "Research data management",
+//  "research-data-management": "Research data management",    --exclude RDM, which is added manually through 'non_repo_workshops.html' 
 };
 
 // -----------------------------
